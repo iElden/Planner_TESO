@@ -20,16 +20,27 @@ ROLE_IS_FULL = "Désolé, il n'y a plus de place pour ce role"
 ALREADY_REGISTED = "Désolé, vous êtes déjà inscrit à cet évènement"
 REGISTED = "{} s'est inscrit en tant que {} pour l'évenement"
 UNREGISTED = "{} s'est désinscrit de l'évenement \"{}\""
-FORCE_REGISTED = "{} a été inscrit de force de l'évenement {} par {}"
+FORCE_REGISTED = "{} a été inscrit de force de l'évenement {} par {} au role de {}"
 FORCE_UNREGISTED = "{} a été déscinscrit de force de l'évenement {} par {}"
 NON_REGISTED = "La personne n'est pas inscrit à l'énènement"
 NOT_FOUND = "Membre non trouvé, vérifiez le pseudo ou copiez l'ID"
-
+INVALID_SYNTAX_SLOT = "Syntaxe invalide : /slot {role} {nombre} (/slot tank 2)"
 DEFAULT_ROLE_LIST = ["tank", "offtank", "heal", "cac", "distant"]
 
 @client.event
 async def on_ready():
     print("Connected")
+
+@client.event
+async def on_raw_reaction_add(emoji, message, channel, user):
+    try:
+        await display_slot(client.get_channel(channel), load(channel))
+    except:
+        pass
+
+@client.event
+async def on_raw_reaction_remove(emoji, message, channel, user):
+    await display_slot(client.get_channel(channel), load(channel))
 
 @client.event
 async def on_message(message):
@@ -42,6 +53,7 @@ async def on_message(message):
             if av[0] == "/unregister" : await unregister(message, av)
             if av[0] == "/forceregister" : await forceregister(message, av)
             if av[0] == "/forceunregister" : await forceunregister(message, av)
+            if av[0] == "/slot" : await change_slot(message, av)
     except Exception:
         await message.channel.send("```diff\n-[Erreur]\n" + traceback.format_exc() + "```")
 
@@ -78,20 +90,30 @@ async def forceregister(message, av):
             id = str(member.id)
         except:
             await message.channel.send(NOT_FOUND)
+    role = av[2].lower()
     data = load(message.channel.id)
-    if do_unregister(data, id):
-        await message.channel.send(FORCE_UNREGISTED.format(mention(id),
-                                                           message.channel.name,
-                                                           message.author.mention))
+    if id in concat_lists(data["registed"].values()):
+        await message.channel.send("Déjà inscrit.")
+        return None
+    if role in data["registed"]:
+        try:
+            free_emplacement = data["registed"][role].index(None)
+            data["registed"][role][free_emplacement] = id
+        except:
+            data["registed"][role].append(id)
     else:
-        await message.channel.send(NON_REGISTED)
+        data["registed"][role] = [id]
+    await message.channel.send(FORCE_REGISTED.format(mention(id),
+                                                     message.channel.name,
+                                                     message.author.mention,
+                                                     role))
     save(message.channel.id, data)
     await display_slot(message.channel, data)
 
 
 async def unregister(message, av):
     data = load(message.channel.id)
-    if do_unregister(data, id):
+    if do_unregister(data, message.author.id):
         await message.channel.send(UNREGISTED.format(message.author.mention,
                                                      message.channel.name))
     else:
@@ -162,8 +184,38 @@ async def display_slot(channel, data):
         message = cache[str(channel.id)]
     except:
         message = await channel.get_message(int(data["msg"]))
+
+    txt += '\n'
+    for reaction in message.reactions:
+        members = await reaction.users().flatten()
+        if reaction.emoji == EMOJI_MAYBE:
+            txt += "\npeut-être (?) : "
+            txt += ", ".join([member.mention for member in members if member != client.user])
+        elif reaction.emoji == EMOJI_X:
+            txt += "\nabsent (X) : "
+            txt += ", ".join([member.mention for member in members if member != client.user])
     await message.edit(content=txt)
     return (txt)
+
+async def change_slot(message, av):
+    if len(av) != 3:
+        await message.channel.send(INVALID_SYNTAX_SLOT)
+    role = av[1].lower()
+    nb = int(av[2])
+    data = load(message.channel.id)
+    if role not in data["registed"]:
+        data["registed"][role] = [None] * nb
+    elif len(data["registed"][role]) < nb:
+        data["registed"][role] += [None] * (nb - len(data["registed"][role]))
+    elif len(data["registed"][role]) > nb:
+        while None in data["registed"][role] and len(data["registed"][role]) > nb:
+            data["registed"][role].remove(None)
+        while len(data["registed"][role]) > nb:
+            await forceunregister(message, [None, data["registed"][role][-1]])
+            data["registed"][role] = data["registed"][role][:-1]
+    save(message.channel.id, data)
+    await message.channel.send("Nombre de slot modifié")
+    await display_slot(message.channel, data)
 
 
 def load(id):
