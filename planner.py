@@ -27,7 +27,6 @@ NOT_FOUND = "Membre non trouvé, vérifiez le pseudo ou copiez l'ID"
 INVALID_SYNTAX_SLOT = "Syntaxe invalide : /slot {role} {nombre} (/slot tank 2)"
 FORBIDDEN = "Vous n'êtes pas autorisé à utiliser cette commande"
 
-AUTORISED = [306116617123790849, 306117017566445568, 306117017566445568]
 DEFAULT_ROLE_LIST = ["tank", "offtank", "heal", "cac", "distant"]
 
 @client.event
@@ -63,6 +62,13 @@ async def on_message(message):
         await message.channel.send("```diff\n-[Erreur]\n" + traceback.format_exc() + "```")
 
 
+async def is_authorised(message):
+    perm = message.author.guild_permissions
+    if perm.administrator or perm.manage_channels or perm.manage_guild:
+        return True
+    await message.channel.send(FORBIDDEN)
+    return False
+
 async def register(message):
     if str(message.channel.id) not in os.listdir("data"):
         return None
@@ -86,9 +92,8 @@ async def register(message):
 
 
 async def forceregister(message, av):
-    #if message.author.id not in AUTORISED:
-    #    await message.channel.send(FORBIDDEN)
-    #    return False
+    if not await is_authorised(message):
+        return False
     try:
         id = int(av[1])
         id = str(id)
@@ -98,7 +103,11 @@ async def forceregister(message, av):
             id = str(member.id)
         except:
             await message.channel.send(NOT_FOUND)
-    role = av[2].lower()
+    try:
+        role = av[2].lower()
+    except:
+        await message.channel.send("Il faut préciser le rôle pour le /forceregister")
+        return None
     data = load(message.channel.id)
     if id in concat_lists(data["registed"].values()):
         await message.channel.send("Déjà inscrit.")
@@ -126,14 +135,14 @@ async def unregister(message, av):
                                                      message.channel.name))
     else:
         await message.channel.send(NON_REGISTED)
+        return None
     save(message.channel.id, data)
     await display_slot(message.channel, data)
 
 
 async def forceunregister(message, av):
-    #if message.author.id not in AUTORISED:
-    #    await message.channel.send(FORBIDDEN)
-    #    return False
+    if not await is_authorised(message):
+        return False
     try:
         id = int(av[1])
         id = str(id)
@@ -143,6 +152,7 @@ async def forceunregister(message, av):
             id = str(member.id)
         except:
             await message.channel.send(NOT_FOUND)
+            return None
     data = load(message.channel.id)
     if do_unregister(data, id):
         await message.channel.send(FORCE_UNREGISTED.format(mention(id),
@@ -163,9 +173,8 @@ def do_unregister(data, id):
     return False
 
 async def create(message, av, create=True):
-    #if message.author.id not in AUTORISED:
-    #    await message.channel.send(FORBIDDEN)
-    #    return False
+    if not await is_authorised(message):
+        return False
     canal_name = av[1]
     slot = av[2].split('/')
     if create:
@@ -215,9 +224,8 @@ async def display_slot(channel, data):
     return (txt)
 
 async def change_slot(message, av):
-    #if message.author.id not in AUTORISED:
-    #    await message.channel.send(FORBIDDEN)
-    #    return False
+    if not await is_authorised(message):
+        return False
     if len(av) != 3:
         await message.channel.send(INVALID_SYNTAX_SLOT)
     role = av[1].lower()
