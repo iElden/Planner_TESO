@@ -85,9 +85,9 @@ async def register(message):
 
 
 async def forceregister(message, av):
-    if message.author.id not in AUTORISED:
-        message.channel.send(FORBIDDEN)
-        return False
+    #if message.author.id not in AUTORISED:
+    #    await message.channel.send(FORBIDDEN)
+    #    return False
     try:
         id = int(av[1])
         id = str(id)
@@ -130,9 +130,9 @@ async def unregister(message, av):
 
 
 async def forceunregister(message, av):
-    if message.author.id not in AUTORISED:
-        message.channel.send(FORBIDDEN)
-        return False
+    #if message.author.id not in AUTORISED:
+    #    await message.channel.send(FORBIDDEN)
+    #    return False
     try:
         id = int(av[1])
         id = str(id)
@@ -162,9 +162,9 @@ def do_unregister(data, id):
     return False
 
 async def create(message, av, create=True):
-    if message.author.id not in AUTORISED:
-        message.channel.send(FORBIDDEN)
-        return False
+    #if message.author.id not in AUTORISED:
+    #    await message.channel.send(FORBIDDEN)
+    #    return False
     canal_name = av[1]
     slot = av[2].split('/')
     if create:
@@ -214,9 +214,9 @@ async def display_slot(channel, data):
     return (txt)
 
 async def change_slot(message, av):
-    if message.author.id not in AUTORISED:
-        message.channel.send(FORBIDDEN)
-        return False
+    #if message.author.id not in AUTORISED:
+    #    await message.channel.send(FORBIDDEN)
+    #    return False
     if len(av) != 3:
         await message.channel.send(INVALID_SYNTAX_SLOT)
     role = av[1].lower()
