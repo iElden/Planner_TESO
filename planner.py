@@ -51,7 +51,7 @@ async def on_message(message):
             await register(message)
         if message.content.startswith('/'):
             av = message.content.split(' ')
-            while ' ' in av : av.remove(' ')
+            while '' in av : av.remove('')
             if av[0] == "/create" : await create(message, av, create=True)
             if av[0] == "/init" : await create(message, av, create=False)
             if av[0] == "/unregister" : await unregister(message, av)
