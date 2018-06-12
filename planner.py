@@ -31,7 +31,9 @@ DEFAULT_ROLE_LIST = ["tank", "offtank", "heal", "cac", "distant"]
 
 @client.event
 async def on_ready():
-    print("Connected")
+    roles = client.get_guild(298108708813013002).roles
+    for role in roles:
+        print(role.name, role.permissions.manage_channels)
 
 @client.event
 async def on_raw_reaction_add(emoji, message, channel, user):
@@ -58,6 +60,7 @@ async def on_message(message):
             if av[0] == "/forceregister" : await forceregister(message, av)
             if av[0] == "/forceunregister" : await forceunregister(message, av)
             if av[0] == "/slot" : await change_slot(message, av)
+            if av[0] == "/move" : await move_all(message, av)
     except Exception:
         await message.channel.send("```diff\n-[Erreur]\n" + traceback.format_exc() + "```")
 
@@ -245,6 +248,34 @@ async def change_slot(message, av):
     await message.channel.send("Nombre de slot modifié")
     await display_slot(message.channel, data)
 
+
+async def move_all(message, av):
+    if not await is_authorised(message):
+        return False
+    try:
+        id = int(av[1])
+        id = str(id)
+    except:
+        try:
+            canal = discord.utils.get(message.guild.channels, name=av[1])
+            id = str(canal.id)
+        except:
+            await message.channel.send("Canal non trouvé")
+            return None
+    try:
+        canal = message.guild.get_channel(id)
+        if not canal : raise ValueError
+    except:
+        await message.channel.send("Canal non trouvé.")
+        return None
+    data = load(message.channel.id)
+    plist = [i for i in concat_lists(data["registed"].values()) if i]
+    for i in plist:
+        member = message.guild.get_member(i)
+        try:
+            await member.move_to(canal)
+        except:
+            await message.channel.send("Impossible de move " + member.name)
 
 def load(id):
     with open("data/{}".format(id), 'r') as fd:
