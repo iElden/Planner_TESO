@@ -263,7 +263,7 @@ async def move_all(message, av):
             await message.channel.send("Canal non trouvé")
             return None
     try:
-        canal = message.guild.get_channel(id)
+        canal = message.guild.get_channel(int(id))
         if not canal : raise ValueError
     except:
         await message.channel.send("Canal non trouvé.")
