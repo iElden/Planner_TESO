@@ -257,7 +257,7 @@ async def move_all(message, av):
         id = str(id)
     except:
         try:
-            canal = discord.utils.get(message.guild.channels, name=av[1])
+            canal = discord.utils.get(message.guild.channels, name=" ".join(av[1:]))
             id = str(canal.id)
         except:
             await message.channel.send("Canal non trouvé")
