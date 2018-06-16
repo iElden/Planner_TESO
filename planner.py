@@ -15,7 +15,7 @@ EMOJI_X = "❌"
 UNKNOW_PATERN = """Impossible de créer les slots.
 Patern non reconnu : {tank}/{offtank}/{heal}/{cac}/{range}
 exemple : /create raid-vétéran-nas-21h 1/1/2/4/4"""
-UNKNOW_ROLE = "Erreur : Role non connu [tank/offtank/heal/cac/range]"
+UNKNOW_ROLE = "Erreur : Rôle non connu [tank/offtank/heal/cac/distant]"
 ROLE_IS_FULL = "Désolé, il n'y a plus de place pour ce role"
 ALREADY_REGISTED = "Désolé, vous êtes déjà inscrit à cet évènement"
 REGISTED = "{} s'est inscrit en tant que {} pour l'évenement"
