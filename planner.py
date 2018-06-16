@@ -275,7 +275,7 @@ async def move_all(message, av):
         try:
             await member.move_to(canal)
         except:
-            await message.channel.send("Impossible de move " + member.name if member else str(i))
+            await message.channel.send("Impossible de move " + (member.name if member else str(i)))
 
 def load(id):
     with open("data/{}".format(id), 'r') as fd:
