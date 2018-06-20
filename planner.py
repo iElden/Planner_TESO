@@ -61,6 +61,7 @@ async def on_message(message):
             if av[0] == "/forceunregister" : await forceunregister(message, av)
             if av[0] == "/slot" : await change_slot(message, av)
             if av[0] == "/move" : await move_all(message, av)
+            if av[0] == "/sendmessage" : await sendmessage(message, av)
     except Exception:
         await message.channel.send("```diff\n-[Erreur]\n" + traceback.format_exc() + "```")
 
@@ -247,6 +248,12 @@ async def change_slot(message, av):
     save(message.channel.id, data)
     await message.channel.send("Nombre de slot modifié")
     await display_slot(message.channel, data)
+
+
+async def sendmessage(message, av):
+    if not await is_authorised(message):
+        return False
+    pass
 
 
 async def move_all(message, av):
