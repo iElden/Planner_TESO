@@ -15,7 +15,7 @@ EMOJI_X = "❌"
 UNKNOW_PATERN = """Impossible de créer les slots.
 Patern non reconnu : {tank}/{offtank}/{heal}/{cac}/{range}
 exemple : /create raid-vétéran-nas-21h 1/1/2/4/4"""
-UNKNOW_ROLE = "Erreur : Rôle non connu [tank/offtank/heal/cac/distant]"
+UNKNOW_ROLE = "Erreur : Rôle non connu [{}]"
 ROLE_IS_FULL = "Désolé, il n'y a plus de place pour ce role"
 ALREADY_REGISTED = "Désolé, vous êtes déjà inscrit à cet évènement"
 REGISTED = "{} s'est inscrit en tant que {} pour l'évenement"
@@ -82,7 +82,7 @@ async def register(message):
         await message.channel.send(ALREADY_REGISTED)
         return None
     if role not in data["registed"].keys():
-        await message.channel.send(UNKNOW_ROLE)
+        await message.channel.send(UNKNOW_ROLE.format("/".join(data["registed"].keys())))
         return None
     if None not in data["registed"][role]:
         await message.channel.send(ROLE_IS_FULL)
