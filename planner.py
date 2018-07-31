@@ -36,14 +36,16 @@ async def on_ready():
         print(role.name, role.permissions.manage_channels)
 
 @client.event
-async def on_raw_reaction_add(emoji, message, channel, user):
+async def on_raw_reaction_add(payload):
     try:
+        channel = payload.channel_id
         await display_slot(client.get_channel(channel), load(channel))
     except:
         pass
 
 @client.event
-async def on_raw_reaction_remove(emoji, message, channel, user):
+async def on_raw_reaction_remove(payload):
+    channel = payload.channel_id
     await display_slot(client.get_channel(channel), load(channel))
 
 @client.event
