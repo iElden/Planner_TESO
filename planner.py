@@ -12,6 +12,7 @@ cache = {}
 
 EMOJI_MAYBE = "❓"
 EMOJI_X = "❌"
+EMOJI_RESERVIST = "🇷"
 UNKNOW_PATERN = """Impossible de créer les slots.
 Patern non reconnu : {tank}/{offtank}/{heal}/{cac}/{range}
 exemple : /create raid-vétéran-nas-21h 1/1/2/4/4"""
@@ -198,6 +199,7 @@ async def create_data(canal, slot):
         else:
             data["registed"][DEFAULT_ROLE_LIST[i]] = [None] * int(slot[i])
     cache[canal.id] = await canal.send("Loading slot ...")
+    await cache[canal.id].add_reaction(EMOJI_RESERVIST)
     await cache[canal.id].add_reaction(EMOJI_MAYBE)
     await cache[canal.id].add_reaction(EMOJI_X)
     await cache[canal.id].pin()
@@ -219,7 +221,10 @@ async def display_slot(channel, data):
     txt += '\n'
     for reaction in message.reactions:
         members = await reaction.users().flatten()
-        if reaction.emoji == EMOJI_MAYBE:
+        if reaction.emoji == EMOJI_RESERVIST:
+            txt += "\nreserviste (R) : "
+            txt += ", ".join([member.mention for member in members if member != client.user])
+        elif reaction.emoji == EMOJI_MAYBE:
             txt += "\npeut-être (?) : "
             txt += ", ".join([member.mention for member in members if member != client.user])
         elif reaction.emoji == EMOJI_X:
