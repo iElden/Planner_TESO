@@ -285,10 +285,12 @@ async def move_all(message, av):
         return None
     data = load(message.channel.id)
     plist = [i for i in concat_lists(data["registed"].values()) if i]
+    players_in_channel = canal.members
     for i in plist:
         member = message.guild.get_member(i)
         try:
-            await member.move_to(canal)
+            if member not in players_in_channel:
+                await member.move_to(canal)
         except:
             await message.channel.send("Impossible de move " + (member.name if member else str(i)))
 
