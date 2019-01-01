@@ -189,12 +189,12 @@ async def create(message, av, create=True):
         canal = await message.guild.create_text_channel(canal_name, category=message.channel.category)
     else:
         canal = message.channel
-    data = await create_data(canal, slot)
+    data = await create_data(canal, slot, desc=' '.join(av[3:]) if len(av) > 3 else "")
     await display_slot(canal, data)
 
     
-async def create_data(canal, slot):
-    data = {"registed":{}, "msg":None}
+async def create_data(canal, slot, desc=""):
+    data = {"registed":{}, "msg":None, "description":desc}
     for i in range(len(slot)):
         if ':' in slot[i]:
             data["registed"][slot[i].split(':')[0]] = [None] * int(slot[i].split(':')[1])
@@ -211,7 +211,8 @@ async def create_data(canal, slot):
 
 
 async def display_slot(channel, data):
-    txt = "Place restante : " + str(concat_lists(data["registed"].values()).count(None))
+    desc = data.get("description") or ""
+    txt = desc + "\nPlace restante : " + str(concat_lists(data["registed"].values()).count(None))
     for role, plist in data["registed"].items():
         for player in plist:
             txt += "\n{} : {}".format(role.capitalize(), mention(player) if player else "")
